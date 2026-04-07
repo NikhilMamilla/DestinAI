@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for institutional security
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // --- Modern User-Isolated Vault Architecture ---
+    // All data under /users/{userId} is strictly partitioned.
+    match /users/{userId} {
+      // User Profile: Publicly fetchable by authenticated users for lookups (concierge, etc)
+      // Strictly writable only by the owner.
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+
+      // Private Data Subcollections:
+      // Includes /trips, /bookings, /activities, /wishlist
+      // Access is strictly bound to the authenticated owner ID mapped to the path.
+      match /{collection}/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // --- Legacy Decommissioning ---
+    // Explicitly disabling top-level flat collections to maintain "Fresh Start" integrity.
+    match /trips/{docId} { allow read, write: if false; }
+    match /bookings/{docId} { allow read, write: if false; }
+    match /activities/{docId} { allow read, write: if false; }
+    match /wishlist/{docId} { allow read, write: if false; }
+  }
+}

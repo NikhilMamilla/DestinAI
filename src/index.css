@@ -1,0 +1,477 @@
+/* ============================================================
+   DESTINAI — Global Stylesheet (globals.css / index.css)
+   Import this in your main entry file:
+     React:  import './globals.css'
+     HTML:   <link rel="stylesheet" href="globals.css">
+   ============================================================ */
+
+/* ── Google Fonts Import ────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=DM+Serif+Display:ital@0;1&family=Josefin+Sans:wght@100;300;400;600&family=Urbanist:wght@100;200;300;400;500;600;700;800;900&family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BASE LAYER — Reset & Defaults
+   ============================================================ */
+@layer base {
+
+  :root {
+    /* ── Color tokens (use these in inline styles if needed) ── */
+    --color-midnight:  #0B1A2E;
+    --color-atlas:     #1A3A5C;
+    --color-gold:      #FFB740;
+    --color-gold-dark: #D48500;
+    --color-teal:      #0D6E6E;
+    --color-mist:      #E8F4FD;
+    --color-parchment: #F7F3EE;
+    --color-aurora:    #8B5CF6;
+    --color-coral:     #E84560;
+    --color-forest:    #28A745;
+    --color-ink:       #2D2D2D;
+
+    /* ── Font tokens ── */
+    --font-display:  'Cinzel', Georgia, serif;
+    --font-editorial:'DM Serif Display', Georgia, serif;
+    --font-label:    'Josefin Sans', system-ui, sans-serif;
+    --font-body:     'Urbanist', system-ui, sans-serif;
+    --font-stat:     'Bebas Neue', Impact, sans-serif;
+
+    /* ── Nav height (JS can read this) ── */
+    --nav-h: 64px;
+    --nav-h-mobile: 56px;
+  }
+
+  html {
+    @apply scroll-smooth;
+    font-family: 'Urbanist', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-mist-100 text-ink antialiased;
+    font-family: var(--font-body);
+  }
+
+  /* Headings use display font by default */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    @apply font-bold leading-tight tracking-wide text-midnight;
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-editorial);
+    @apply font-normal leading-snug text-midnight-500;
+  }
+
+  p {
+    font-family: var(--font-body);
+    @apply text-base leading-relaxed text-ink;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Focus visible for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold/50 ring-offset-2;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-gold/30 text-midnight;
+  }
+
+  /* Universal Scrollbar Hide — Feature of high-fidelity 'No-Tab' UI */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+  }
+}
+
+
+/* ============================================================
+   COMPONENT LAYER — Reusable UI Components
+   ============================================================ */
+@layer components {
+
+  /* ════════════════════════════════════════════════════════
+     TYPOGRAPHY COMPONENTS
+     ════════════════════════════════════════════════════════ */
+
+  /* Logo mark */
+  .text-logo {
+    font-family: var(--font-display);
+    @apply text-3xl font-bold tracking-widest uppercase;
+  }
+
+  /* Hero heading — large page title */
+  .text-hero {
+    font-family: var(--font-display);
+    @apply text-6xl md:text-7xl lg:text-8xl font-bold tracking-wide leading-none;
+  }
+
+  /* Section heading */
+  .text-section {
+    font-family: var(--font-display);
+    @apply text-4xl md:text-5xl font-bold tracking-wide;
+  }
+
+  /* Card / destination name */
+  .text-editorial {
+    font-family: var(--font-editorial);
+    @apply text-2xl md:text-3xl font-normal leading-snug;
+  }
+
+  /* Editorial italic tagline */
+  .text-tagline {
+    font-family: var(--font-editorial);
+    @apply text-xl md:text-2xl italic font-normal leading-snug text-midnight-500;
+  }
+
+  /* Category / badge / eyebrow label */
+  .text-label {
+    font-family: var(--font-label);
+    @apply text-xs font-semibold tracking-widest uppercase;
+  }
+
+  /* Nav link */
+  .text-nav {
+    font-family: var(--font-label);
+    @apply text-xs font-light tracking-widest uppercase;
+  }
+
+  /* Stat / number display */
+  .text-stat {
+    font-family: var(--font-stat);
+    @apply tracking-wide leading-none;
+  }
+  .text-stat-sm { font-family: var(--font-stat); @apply text-[32px] tracking-wide leading-none; }
+  .text-stat-md { font-family: var(--font-stat); @apply text-[48px] tracking-wide leading-none; }
+  .text-stat-xl { font-family: var(--font-stat); @apply text-[96px] leading-none; }
+
+  /* Body text */
+  .text-body    { font-family: var(--font-body); @apply text-base leading-relaxed; }
+  .text-body-sm { font-family: var(--font-body); @apply text-sm leading-relaxed; }
+  .text-caption { font-family: var(--font-body); @apply text-xs text-ink-muted leading-relaxed; }
+  .text-price   {
+    font-family: var(--font-stat);
+    @apply text-[32px] text-gold tracking-wide;
+  }
+
+
+  /* ════════════════════════════════════════════════════════
+     NAVBAR
+     ════════════════════════════════════════════════════════ */
+
+  /* Dark Navbar (hero/landing) */
+  .navbar-dark {
+    @apply fixed top-0 left-0 right-0 z-50 flex items-center justify-between
+           px-6 md:px-10 lg:px-16
+           bg-midnight text-white
+           border-b border-white/5
+           transition-all duration-300;
+    height: var(--nav-h);
+  }
+
+  /* Light Navbar (interior pages) */
+  .navbar-light {
+    @apply fixed top-0 left-0 right-0 z-50 flex items-center justify-between
+           px-6 md:px-10 lg:px-16
+           bg-mist-100/95 backdrop-blur-md text-midnight
+           border-b border-midnight/8
+           transition-all duration-300;
+    height: var(--nav-h);
+  }
+
+  /* Logo in navbar */
+  .navbar-logo {
+    @apply text-logo text-2xl text-white;
+  }
+  .navbar-logo-dark {
+    @apply text-logo text-2xl text-midnight;
+  }
+  .navbar-logo span {
+    @apply text-gold;
+  }
+
+  /* Nav links */
+  .navbar-link {
+    @apply text-nav text-white/60 hover:text-gold transition-colors duration-200 cursor-pointer;
+  }
+  .navbar-link-dark {
+    @apply text-nav text-midnight/60 hover:text-midnight transition-colors duration-200 cursor-pointer;
+  }
+
+
+  /* ════════════════════════════════════════════════════════
+     BUTTONS
+     ════════════════════════════════════════════════════════ */
+
+  /* Base button */
+  .btn {
+    font-family: var(--font-label);
+    @apply inline-flex items-center justify-center gap-2
+           text-xs font-semibold tracking-widest uppercase
+           px-6 py-3 rounded-md
+           transition-all duration-200
+           focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none cursor-pointer;
+  }
+
+  /* Primary — Gold on Midnight */
+  .btn-primary {
+    @apply btn bg-gold text-midnight
+           hover:bg-gold-500 hover:shadow-[0_8px_32px_rgba(255,183,64,0.45)]
+           active:scale-95;
+  }
+
+  /* Secondary — Outlined */
+  .btn-secondary {
+    @apply btn bg-transparent text-midnight border border-midnight/30
+           hover:bg-midnight hover:text-gold hover:border-midnight
+           active:scale-95;
+  }
+
+  /* Dark — Midnight on Gold */
+  .btn-dark {
+    @apply btn bg-midnight text-gold border border-midnight
+           hover:bg-midnight-700 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+           active:scale-95;
+  }
+
+  /* Outline Gold */
+  .btn-gold-outline {
+    @apply btn bg-transparent text-gold border border-gold/50
+           hover:bg-gold hover:text-midnight
+           active:scale-95;
+  }
+
+  /* Ghost — Light */
+  .btn-ghost {
+    @apply btn bg-white/10 text-white border border-white/20
+           hover:bg-white/20
+           backdrop-blur-sm
+           active:scale-95;
+  }
+
+  /* Teal — Navigation/Route actions */
+  .btn-teal {
+    @apply btn bg-teal text-white
+           hover:bg-teal-700
+           active:scale-95;
+  }
+
+  /* Icon button */
+  .btn-icon {
+    @apply flex items-center justify-center
+           w-10 h-10 rounded-full
+           bg-white/10 text-white border border-white/20
+           hover:bg-white/20 transition-all duration-200
+           active:scale-95 cursor-pointer;
+  }
+
+  /* Small button variant */
+  .btn-sm {
+    @apply px-4 py-2 text-[10px] rounded-sm;
+  }
+
+  /* Large button variant */
+  .btn-lg {
+    @apply px-8 py-4 text-sm rounded-lg;
+  }
+
+
+  /* ════════════════════════════════════════════════════════
+     BADGES & CHIPS
+     ════════════════════════════════════════════════════════ */
+
+  /* Base badge */
+  .badge {
+    font-family: var(--font-label);
+    @apply inline-flex items-center gap-1
+           text-[10px] font-semibold tracking-wider uppercase
+           px-3 py-1 rounded-full;
+  }
+
+  /* Transport mode chips */
+  .chip-teal   { @apply badge bg-teal/15 text-teal-600; }
+  .chip-gold   { @apply badge bg-gold/20 text-gold-600; }
+  .chip-aurora { @apply badge bg-aurora/15 text-aurora-600; }
+  .chip-coral  { @apply badge bg-coral/15 text-coral-600; }
+  .chip-forest { @apply badge bg-forest/15 text-forest-600; }
+  .chip-navy   { @apply badge bg-midnight/10 text-midnight-500; }
+
+  /* Featured / AI badge */
+  .badge-ai {
+    @apply badge bg-gradient-to-r from-aurora to-midnight-500 text-white;
+  }
+
+  /* Price tag */
+  .price-tag {
+    font-family: var(--font-stat);
+    @apply text-gold text-[32px] tracking-wide;
+  }
+
+  /* Rating badge */
+  .rating {
+    font-family: var(--font-body);
+    @apply inline-flex items-center gap-1 text-sm font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-sm;
+  }
+
+
+  /* ════════════════════════════════════════════════════════
+     CARDS
+     ════════════════════════════════════════════════════════ */
+
+  /* Base card */
+  .card {
+    @apply bg-white rounded-2xl shadow-[0_2px_12px_rgba(11,26,46,0.08)] overflow-hidden
+           transition-all duration-300
+           hover:shadow-[0_8px_24px_rgba(11,26,46,0.14)] hover:-translate-y-1;
+  }
+
+  /* Dark card — for use on dark bg */
+  .card-dark {
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm
+           transition-all duration-300
+           hover:bg-white/10 hover:border-white/20;
+  }
+
+  /* Destination card */
+  .card-destination {
+    @apply card relative cursor-pointer;
+  }
+  .card-destination-img {
+    @apply aspect-[16/7] w-full object-cover;
+  }
+  .card-destination-body {
+    @apply p-5;
+  }
+  .card-destination-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-midnight/90 to-transparent;
+  }
+
+  /* Hotel card */
+  .card-hotel {
+    @apply card flex flex-col;
+  }
+  .card-hotel-img {
+    @apply aspect-video w-full object-cover;
+  }
+  .card-hotel-body {
+    @apply p-5 flex-1 flex flex-col gap-2;
+  }
+
+  /* Stat card */
+  .card-stat {
+    @apply bg-mist-300 rounded-xl p-5 flex flex-col gap-1;
+  }
+  .card-stat-label {
+    @apply text-label text-midnight/50;
+  }
+  .card-stat-value {
+    @apply text-stat text-midnight;
+  }
+
+  /* Itinerary step card */
+  .card-step {
+    @apply relative flex gap-4 p-4
+           bg-white border border-midnight/5 rounded-xl
+           transition-all duration-200
+           hover:border-gold/30 hover:shadow-[0_2px_12px_rgba(11,26,46,0.08)];
+  }
+  .card-step-num {
+    @apply flex-shrink-0 w-8 h-8 rounded-full
+           bg-midnight text-gold text-sm font-bold
+           flex items-center justify-center;
+    font-family: var(--font-stat);
+  }
+
+  /* Transport card */
+  .card-transport {
+    @apply flex flex-col items-center gap-2 p-4
+           bg-white border border-midnight/5 rounded-xl cursor-pointer
+           transition-all duration-200
+           hover:border-teal hover:shadow-[0_4px_16px_rgba(13,110,110,0.3)];
+  }
+  .card-transport.active {
+    @apply border-teal bg-teal/5 shadow-[0_4px_16px_rgba(13,110,110,0.3)];
+  }
+
+
+  /* ════════════════════════════════════════════════════════
+     INPUTS & FORMS
+     ════════════════════════════════════════════════════════ */
+
+  /* Base input */
+  .input {
+    font-family: var(--font-body);
+    @apply w-full px-4 py-3 text-base text-ink
+           bg-white border border-midnight/10 rounded-md
+           placeholder:text-[#BDBDBD]
+           transition-all duration-200
+           focus:outline-none focus:border-midnight-500 focus:ring-2 focus:ring-midnight/10;
+  }
+
+  /* Search input (large) */
+  .input-search {
+    @apply input text-lg py-4 px-6 rounded-xl pr-14 shadow-[0_2px_12px_rgba(11,26,46,0.08)];
+  }
+
+  /* Select */
+  .select {
+    @apply input appearance-none cursor-pointer bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6B6B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  /* Label */
+  .input-label {
+    font-family: var(--font-label);
+    @apply block text-[10px] font-semibold tracking-widest uppercase text-midnight/70 mb-2;
+  }
+
+
+}
+
+
+/* ============================================================
+   UTILITIES LAYER — Custom one-off utilities
+   ============================================================ */
+@layer utilities {
+
+  /* Font family shortcuts */
+  .font-display   { font-family: var(--font-display); }
+  .font-editorial { font-family: var(--font-editorial); }
+  .font-label     { font-family: var(--font-label); }
+  .font-body      { font-family: var(--font-body); }
+  .font-stat      { font-family: var(--font-stat); }
+
+  /* Gradient text */
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #FFB740, #D48500);
+  }
+  .text-gradient-aurora {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #8B5CF6, #40C4FF);
+  }
+
+  /* Glassmorphism */
+  .glass-dark  { @apply bg-midnight/60 backdrop-blur-md border border-white/10; }
+  .glass-light { @apply bg-white/80 backdrop-blur-md border border-midnight/10; }
+  .glass-gold  { @apply bg-gold/10 backdrop-blur-md border border-gold/20; }
+
+  /* Text shadow for readability on images */
+  .text-shadow     { text-shadow: 0 2px 8px rgba(11,26,46,0.5); }
+  .text-shadow-lg  { text-shadow: 0 4px 16px rgba(11,26,46,0.7); }
+}
