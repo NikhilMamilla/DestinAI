@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, orderBy, onSnapshot, limit, addDoc, deleteDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, limit, addDoc, deleteDoc, serverTimestamp, doc } from 'firebase/firestore';
 import InnerNavbar from '../components/InnerNavbar';
 
 const DESTINATIONS = [
@@ -342,7 +342,7 @@ export default function Home() {
                     </div>
                     <div className="glass-dark px-2 py-0.5 rounded-md flex items-center gap-1.5 border border-white/5 opacity-60">
                       <svg className="w-2 h-2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      <span className="font-stat text-[8px] text-white/60 uppercase tracking-widest">Local: {getDestinationTime(dest.timezone)}</span>
+                      <span className="font-stat text-[8px] text-white/60 uppercase tracking-widest">Local: {getDestinationTime(dest.timezone, tick)}</span>
                     </div>
                   </div>
                 </div>
