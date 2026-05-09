@@ -228,7 +228,7 @@ export default function Landing() {
                         <span className="text-2xl">💬</span>
                     </div>
                     <h3 className="font-editorial text-2xl text-midnight mb-3 tracking-wide">Conversational</h3>
-                    <p className="font-body text-sm text-ink-muted leading-relaxed">A global chat component powered natively by Groq SDK that reads your screen context to help anywhere.</p>
+                    <p className="font-body text-sm text-ink-muted leading-relaxed">A global chat component powered natively by Mistral AI that reads your screen context to help anywhere.</p>
                 </div>
             </div>
         </div>
@@ -371,7 +371,7 @@ export default function Landing() {
                 <div className="w-3 h-3 rounded-full bg-mist-500/20"></div>
               </div>
               <div className="font-label text-[9px] md:text-[10px] text-white/40 tracking-widest mx-auto flex gap-1.5 md:gap-2 items-center flex-1 justify-center">
-                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0"></span> GROQ AI CONNECTED
+                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0"></span> MISTRAL AI CONNECTED
               </div>
             </div>
             
@@ -407,12 +407,12 @@ export default function Landing() {
             </h2>
             <div className="w-12 h-0.5 bg-aurora-500 mb-2 mx-auto lg:mx-0"></div>
             <p className="font-body text-base md:text-lg text-mist-500 leading-relaxed max-w-lg mb-4">
-              Unlike traditional booking agents, our globally persistent chat interface powered by Groq reads your immediate screen context. Ask it about the hotel you're currently viewing, or direct it to construct a multi-city tour while you browse the map.
+              Unlike traditional booking agents, our globally persistent chat interface powered by Mistral AI reads your immediate screen context. Ask it about the hotel you're currently viewing, or direct it to construct a multi-city tour while you browse the map.
             </p>
             <ul className="flex flex-col gap-4 mt-2 text-left w-full max-w-sm mx-auto lg:mx-0">
               <li className="flex items-center gap-4 text-mist-300 font-body text-sm md:text-[15px]">
                  <span className="w-6 h-6 rounded-full bg-aurora-500/10 border border-aurora-500/30 text-aurora-400 flex items-center justify-center text-[10px] shrink-0">✔</span>
-                 Sub-second inference via Groq
+                  Sub-second inference via Mistral
               </li>
               <li className="flex items-center gap-4 text-mist-300 font-body text-sm md:text-[15px]">
                  <span className="w-6 h-6 rounded-full bg-aurora-500/10 border border-aurora-500/30 text-aurora-400 flex items-center justify-center text-[10px] shrink-0">✔</span>
@@ -491,7 +491,7 @@ export default function Landing() {
                         <a href="#agents" className="font-body text-sm text-mist-500/80 hover:text-gold transition-colors">AI Planner</a>
                         <a href="#agents" className="font-body text-sm text-mist-500/80 hover:text-gold transition-colors">Instant Booking</a>
                         <a href="#agents" className="font-body text-sm text-mist-500/80 hover:text-gold transition-colors">Navigation Engine</a>
-                        <a href="#agents" className="font-body text-sm text-mist-500/80 hover:text-gold transition-colors flex items-center gap-2">Groq LPU <span className="px-1.5 py-0.5 rounded text-[8px] bg-teal-500/20 text-teal-300 uppercase tracking-widest font-label">NEW</span></a>
+                        <a href="#agents" className="font-body text-sm text-mist-500/80 hover:text-gold transition-colors flex items-center gap-2">Mistral AI <span className="px-1.5 py-0.5 rounded text-[8px] bg-teal-500/20 text-teal-300 uppercase tracking-widest font-label">NEW</span></a>
                     </div>
 
                     {/* Links: Company */}

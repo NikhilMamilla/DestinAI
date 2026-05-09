@@ -99,23 +99,39 @@ export default function Planner() {
       suppressMarkers: false,
     });
 
-    if (inputRef.current) {
-      const ac = new window.google.maps.places.Autocomplete(inputRef.current);
-      ac.addListener("place_changed", () => {
-        const place = ac.getPlace();
-        if (!place?.geometry?.location) return;
-        const data = { name: place.name, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-        setPlaces(prev => {
-          if (prev.length >= 6) { showToast("Maximum 6 waypoints allowed", "error"); return prev; }
-          const marker = new window.google.maps.Marker({
-            position: data, map: initMap, title: data.name,
-            icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#FFB740", fillOpacity: 1, strokeWeight: 2, strokeColor: "#0B1A2E" }
+    const searchPlaceFree = async (query: string) => {
+      if (!query.trim()) return;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const location = { name: data[0].display_name.split(',')[0], lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+          setPlaces(prev => {
+            if (prev.length >= 6) { showToast("Maximum 6 waypoints allowed", "error"); return prev; }
+            const marker = new window.google.maps.Marker({
+              position: { lat: location.lat, lng: location.lng }, map: map, title: location.name,
+              icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#FFB740", fillOpacity: 1, strokeWeight: 2, strokeColor: "#0B1A2E" }
+            });
+            markersRef.current.push(marker);
+            return [...prev, location];
           });
-          markersRef.current.push(marker);
-          return [...prev, data];
-        });
-        if (inputRef.current) inputRef.current.value = "";
-      });
+          if (inputRef.current) inputRef.current.value = "";
+          showToast("Stop added ✓", "success");
+        } else {
+          showToast("Location not found", "error");
+        }
+      } catch {
+        showToast("Search engine error", "error");
+      }
+    };
+
+    if (inputRef.current) {
+      inputRef.current.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchPlaceFree((e.target as HTMLInputElement).value);
+        }
+      };
     }
 
     const saved = localStorage.getItem("tripPlan");
@@ -160,7 +176,7 @@ export default function Planner() {
   };
 
   // --- Telemetry Helpers ---
-  const calculateFlightStats = () => {
+  const calculateManualStats = () => {
     let totalD = 0;
     for (let i = 0; i < places.length - 1; i++) {
         const p1 = places[i], p2 = places[i+1];
@@ -173,8 +189,15 @@ export default function Planner() {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         totalD += R * c;
     }
-    // Avg speed 800km/h + 1h buffer
-    return { distance: totalD, duration: (totalD / 800) * 3600 + 3600 };
+    
+    // Manual speed estimates to bypass paid Directions API
+    let avgSpeedKmh = 60; // default for road
+    if (travelMethod === 'flight') avgSpeedKmh = 800;
+    if (travelMethod === 'rail') avgSpeedKmh = 100;
+    if (travelMethod === 'sea') avgSpeedKmh = 30;
+    
+    const durationSeconds = (totalD / avgSpeedKmh) * 3600;
+    return { distance: totalD, duration: durationSeconds };
   };
 
   const formatDuration = (s: number) => {
@@ -186,61 +209,44 @@ export default function Planner() {
 
   const drawRoute = (silent: boolean = false) => {
     if (places.length < 2) return;
-    if (!directionsService.current || !directionsRenderer.current || !mapRef.current) return;
+    if (!map) return;
     
-    // Clear previous
-    if (directionsRenderer.current) directionsRenderer.current.setDirections(null as any);
+    // Clear previous paths
     if (flightPolyline.current) flightPolyline.current.setMap(null);
+    if (directionsRenderer.current) directionsRenderer.current.setDirections({ routes: [] } as any);
 
-    // Map travelMethod to Engine Mode
-    let mode: google.maps.TravelMode = window.google.maps.TravelMode.DRIVING;
-    if (travelMethod === 'rail' || travelMethod === 'sea') mode = window.google.maps.TravelMode.TRANSIT;
+    const stats = calculateManualStats();
+    setRouteStats({ ...stats, error: null });
+    
+    const path = places.map(p => ({ lat: p.lat, lng: p.lng }));
+    
+    // Define path style based on travel method
+    let polyStyle: google.maps.PolylineOptions = {
+      path,
+      geodesic: true,
+      strokeColor: "#FFB740",
+      strokeOpacity: 0.8,
+      strokeWeight: 4,
+      map: map
+    };
 
     if (travelMethod === "flight") {
-       const stats = calculateFlightStats();
-       setRouteStats({ ...stats, error: null });
-       
-       const path = places.map(p => ({ lat: p.lat, lng: p.lng }));
-       flightPolyline.current = new window.google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: "#FFB740",
-          strokeOpacity: 0.8,
-          strokeWeight: 3,
-          icons: [{ icon: { path: "M 0,-1 0,1", strokeOpacity: 1, scale: 2 }, offset: "0", repeat: "10px" }],
-          map: map
-       });
-       
-       const bounds = new window.google.maps.LatLngBounds();
-       path.forEach(p => bounds.extend(p));
-       if (map) map.fitBounds(bounds);
-       if (!silent) showToast("Aeronautical path mapped ✓", "success");
-       return;
+      polyStyle.strokeWeight = 3;
+      polyStyle.icons = [{ icon: { path: "M 0,-1 0,1", strokeOpacity: 1, scale: 2 }, offset: "0", repeat: "10px" }];
+    } else if (travelMethod === "rail") {
+      polyStyle.strokeColor = "#2DD4BF"; // Teal for rail
     }
 
-    directionsService.current.route({
-      origin: { lat: places[0].lat, lng: places[0].lng },
-      destination: { lat: places[places.length - 1].lat, lng: places[places.length - 1].lng },
-      waypoints: places.slice(1, -1).map(p => ({ location: { lat: p.lat, lng: p.lng }, stopover: true })),
-      travelMode: mode,
-    }, (res, status) => {
-      if (status === "OK" && res) {
-        directionsRenderer.current!.setDirections(res);
-        
-        let totalD = 0, totalS = 0;
-        res.routes[0].legs.forEach(leg => {
-           totalD += leg.distance?.value || 0;
-           totalS += leg.duration?.value || 0;
-        });
-
-        setRouteStats({ distance: totalD / 1000, duration: totalS, error: null });
-        if (!silent) showToast("Surface route rendered ✓", "success");
-      } else {
-        const errorMsg = status === "ZERO_RESULTS" ? (travelMethod === 'sea' ? "NO MARINE ROUTE" : "SURFACE N/A | TRY FLIGHT") : status;
-        setRouteStats({ distance: 0, duration: 0, error: errorMsg });
-        if (!silent) showToast("Route unavailable: " + errorMsg, "error");
-      }
-    });
+    flightPolyline.current = new window.google.maps.Polyline(polyStyle);
+    
+    const bounds = new window.google.maps.LatLngBounds();
+    path.forEach(p => bounds.extend(p));
+    if (map) map.fitBounds(bounds);
+    
+    if (!silent) {
+       const msg = travelMethod.charAt(0).toUpperCase() + travelMethod.slice(1) + " route mapped ✓";
+       showToast(msg, "success");
+    }
   };
 
   const saveTrip = async () => {

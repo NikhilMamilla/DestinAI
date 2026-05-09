@@ -3,7 +3,7 @@
 DestinAI (formerly Kiddoo) is a high-fidelity, real-time travel planning dashboard. It features a "Night-Map" dark mode aesthetic, integrated AI trip navigation, and a global hotel concierge.
 
 ## 🏝️ Key Features
-- **Intelligent Planner**: Multi-stop routing with AI feedback (using Llama-3.3-70b).
+- **Intelligent Planner**: Multi-stop routing with AI feedback (using Mistral AI).
 - **Hotel Concierge**: Search and book hotels globally with real-time Firestore sync.
 - **Travel Persona**: Personalized experiences based on 'Travel Style' (Backpacker, Explorer, Elite) and Currency.
 - **Living Dashboard**: Real-time stay durations, trip countdowns, and 'Live' activity feeds.
@@ -19,7 +19,7 @@ npm install
 ### 2. Environment Setup
 Rename `.env.example` to `.env` and add your keys:
 - `VITE_GOOGLE_MAPS_API_KEY` (Google Cloud)
-- `VITE_GROQ_API_KEY` (Groq API for Llama)
+- `VITE_MISTRAL_API_KEY` (Mistral AI API)
 - `VITE_FIREBASE_*` (Firebase Console Settings)
 
 ### 3. Usage
@@ -36,7 +36,7 @@ firebase deploy --only firestore:rules,firestore:indexes
 - **Frontend**: React 19 + Vite + Tailwind CSS
 - **Database**: Firebase Firestore (Real-time snapshots)
 - **Auth**: Firebase Authentication (Email/Google)
-- **AI**: Groq SDK (Llama 3.3 Large Language Model)
+- **AI**: Mistral AI (Large Language Model via Fetch API)
 - **Maps**: Google Maps JavaScript API
 
 ---
