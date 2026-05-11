@@ -106,45 +106,30 @@ export default function Booking() {
   };
 
   const findNearbyHotelsFree = async (lat: number, lon: number) => {
-    const query = `[out:json][timeout:25];(node["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon});way["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon}););out center;`;
-    
-    // Multiple mirrors to avoid 504/overload issues
-    const mirrors = [
-      "https://overpass-api.de/api/interpreter",
-      "https://overpass.kumi.systems/api/interpreter",
-      "https://lz4.overpass-api.de/api/interpreter",
-      "https://overpass.osm.ch/api/interpreter"
-    ];
-
-    let success = false;
-    for (const mirror of mirrors) {
-      if (success) break;
-      try {
-        const url = `${mirror}?data=${encodeURIComponent(query)}`;
-        const res = await fetch(url);
-        if (!res.ok) continue;
-        
-        const data = await res.json();
-        if (data.elements && data.elements.length > 0) {
-          const results = data.elements.map((el: any) => ({
-            name: el.tags.name || "Boutique Stay",
-            vicinity: el.tags["addr:street"] ? `${el.tags["addr:street"]} ${el.tags["addr:housenumber"] || ""}` : "Verified Central District",
-            rating: 4.0 + (Math.random() * 1.0),
-            price_level: Math.floor(Math.random() * 4) + 1,
-            place_id: el.id,
-            lat: el.lat || el.center?.lat,
-            lng: el.lon || el.center?.lon,
-          }));
-          setHotels(results.slice(0, 12));
-          showToast(`${results.length > 12 ? 12 : results.length} premium stays localized ✓`, "success");
-          success = true;
-        }
-      } catch (e) {
-        console.warn(`Mirror ${mirror} failed, trying next...`);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/hotels?lat=${lat}&lon=${lon}`);
+      if (!res.ok) throw new Error("API proxy failure");
+      
+      const data = await res.json();
+      if (data.elements && data.elements.length > 0) {
+        const results = data.elements.map((el: any) => ({
+          name: el.tags.name || "Boutique Stay",
+          vicinity: el.tags["addr:street"] ? `${el.tags["addr:street"]} ${el.tags["addr:housenumber"] || ""}` : "Verified Central District",
+          rating: 4.0 + (Math.random() * 1.0),
+          price_level: Math.floor(Math.random() * 4) + 1,
+          place_id: el.id,
+          lat: el.lat || el.center?.lat,
+          lng: el.lon || el.center?.lon,
+        }));
+        setHotels(results.slice(0, 12));
+        showToast(`${results.length > 12 ? 12 : results.length} premium stays localized ✓`, "success");
+      } else {
+        setHotels([]);
+        showToast("No luxury assets found here", "info");
       }
-    }
-
-    if (!success) {
+    } catch (error) {
+      console.error("Hotel fetch error:", error);
       showToast("Global asset mirrors timing out. Please try again.", "error");
       setHotels([]);
     }
