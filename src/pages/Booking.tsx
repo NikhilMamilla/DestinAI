@@ -88,14 +88,14 @@ export default function Booking() {
     if (!destination.trim()) return showToast("Enter a destination first", "info");
     setLoading(true);
 
-    // Use Free OpenStreetMap Geocoding (No Billing Required)
+    // Use Free OpenStreetMap Geocoding (Nominatim)
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1`)
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
           findNearbyHotelsFree(parseFloat(data[0].lat), parseFloat(data[0].lon));
         } else {
-          showToast("Location not discovered in base", "error");
+          showToast("Location not discovered. Try another city.", "error");
           setLoading(false);
         }
       })
@@ -105,14 +105,26 @@ export default function Booking() {
       });
   };
 
-  const findNearbyHotelsFree = (lat: number, lon: number) => {
-    // Overpass API Query (Free Open Data)
-    const query = `[out:json];(node["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon});way["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon}););out center;`;
-    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+  const findNearbyHotelsFree = async (lat: number, lon: number) => {
+    const query = `[out:json][timeout:25];(node["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon});way["tourism"~"hotel|hostel|guest_house"](around:5000,${lat},${lon}););out center;`;
+    
+    // Multiple mirrors to avoid 504/overload issues
+    const mirrors = [
+      "https://overpass-api.de/api/interpreter",
+      "https://overpass.kumi.systems/api/interpreter",
+      "https://lz4.overpass-api.de/api/interpreter",
+      "https://overpass.osm.ch/api/interpreter"
+    ];
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
+    let success = false;
+    for (const mirror of mirrors) {
+      if (success) break;
+      try {
+        const url = `${mirror}?data=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        
+        const data = await res.json();
         if (data.elements && data.elements.length > 0) {
           const results = data.elements.map((el: any) => ({
             name: el.tags.name || "Boutique Stay",
@@ -125,16 +137,18 @@ export default function Booking() {
           }));
           setHotels(results.slice(0, 12));
           showToast(`${results.length > 12 ? 12 : results.length} premium stays localized ✓`, "success");
-        } else {
-          setHotels([]);
-          showToast("No luxury assets found here", "info");
+          success = true;
         }
-        setLoading(false);
-      })
-      .catch(() => {
-        showToast("Asset discovery failed", "error");
-        setLoading(false);
-      });
+      } catch (e) {
+        console.warn(`Mirror ${mirror} failed, trying next...`);
+      }
+    }
+
+    if (!success) {
+      showToast("Global asset mirrors timing out. Please try again.", "error");
+      setHotels([]);
+    }
+    setLoading(false);
   };
 
   const confirmBooking = async () => {
